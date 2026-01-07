@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
     int c = 0;
     char *filepath = NULL;
     bool newfile = false;
+    int database_file_descriptor = -1;
 
     while ((c = getopt(argc, argv, "nf:")) != -1) {
 	switch (c) {
@@ -40,9 +41,20 @@ int main(int argc, char *argv[]) {
 
         return 0;
     }
-    
-    printf("Newfile: %d\n", newfile);
-    printf("Filepath: %s\n", filepath);
+
+    if (newfile) {
+	database_file_descriptor = create_db_file(filepath);
+        if (database_file_descriptor == STATUS_ERROR) {
+            printf("Unable to create database file\n");
+            return -1;
+        }
+    } else {
+	database_file_descriptor = open_db_file(filepath);
+        if (database_file_descriptor == STATUS_ERROR) {
+	    printf("Unable to open database file\n");
+	    return -1;
+	}
+    }
 
     return 0;
 }
