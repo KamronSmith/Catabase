@@ -5,6 +5,7 @@ OBJ = $(patsubst src/%.c, obj/%.o, $(SRC))
 run: clean default
 
 default: $(TARGET)
+	./$(TARGET) -f ./mynewdb.db -n
 
 clean:
 	rm -f obj/*.o
