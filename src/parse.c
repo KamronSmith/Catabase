@@ -61,15 +61,15 @@ int validate_db_header(int fd, struct dbheader_t **headerOut) {
 
     header->version = ntohs(header->version);
     header->count = ntohs(header->count);
-    header->magic = ntohl(header->magic);
     header->filesize = ntohl(header->filesize);
+    header->magic = ntohl(header->magic);
 
     if (header->version != 1) {
 	printf("Mismatched database header version\n");
 	free(header);
 	return -1;
     }
-    if (header->magic != 1) {
+    if (header->magic != HEADER_MAGIC) {
 	printf("Mismatched magic database header\n");
 	free(header);
 	return -1;
@@ -83,6 +83,8 @@ int validate_db_header(int fd, struct dbheader_t **headerOut) {
         free(header);
         return -1;
     }
+
+    *headerOut = header;
 }
 
 int create_db_header(int fd, struct dbheader_t **headerOut) {
