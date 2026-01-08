@@ -66,6 +66,7 @@ int main(int argc, char *argv[]) {
             return -1;
         }
     }
+    output_file(database_file_descriptor, database_header);
 
     return 0;
 }
