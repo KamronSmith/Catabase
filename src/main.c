@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
     char *filepath = NULL;
     bool newfile = false;
     int database_file_descriptor = -1;
+    struct dbheader_t *database_header = NULL;
 
     while ((c = getopt(argc, argv, "nf:")) != -1) {
 	switch (c) {
@@ -44,8 +45,14 @@ int main(int argc, char *argv[]) {
 
     if (newfile) {
 	database_file_descriptor = create_db_file(filepath);
+	
         if (database_file_descriptor == STATUS_ERROR) {
             printf("Unable to create database file\n");
+            return -1;
+        }
+
+        if (create_db_header(database_file_descriptor, &database_header) == STATUS_ERROR) {
+            printf("Failed to create database header\n");
             return -1;
         }
     } else {
