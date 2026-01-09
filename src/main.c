@@ -16,12 +16,17 @@ void print_usage(char *argv[]) {
 int main(int argc, char *argv[]) {
     int c = 0;
     char *filepath = NULL;
+    char *addstring = NULL;
     bool newfile = false;
     int database_file_descriptor = -1;
     struct dbheader_t *database_header = NULL;
+    struct employee_t *employees = NULL;
 
-    while ((c = getopt(argc, argv, "nf:")) != -1) {
+    while ((c = getopt(argc, argv, "nf:a:")) != -1) {
 	switch (c) {
+        case 'a':
+            addstring = optarg;
+            break;
         case 'n':
             newfile = true;
             break;
@@ -32,7 +37,7 @@ int main(int argc, char *argv[]) {
             printf("Unknown option -%c\n", c);
             break;
         default:
-            return -1;
+            return STATUS_ERROR;
         }
     }
 
@@ -48,25 +53,40 @@ int main(int argc, char *argv[]) {
 	
         if (database_file_descriptor == STATUS_ERROR) {
             printf("Unable to create database file\n");
-            return -1;
+            return STATUS_ERROR;
         }
 
         if (create_db_header(database_file_descriptor, &database_header) == STATUS_ERROR) {
             printf("Failed to create database header\n");
-            return -1;
+            return STATUS_ERROR;
         }
+        
     } else {
 	database_file_descriptor = open_db_file(filepath);
         if (database_file_descriptor == STATUS_ERROR) {
 	    printf("Unable to open database file\n");
-	    return -1;
+	    return STATUS_ERROR;
         }
+        
         if (validate_db_header(database_file_descriptor, &database_header) == STATUS_ERROR) {
             printf("Unable to validate database header\n");
-            return -1;
+            return STATUS_ERROR;
         }
     }
-    output_file(database_file_descriptor, database_header);
+
+    if (read_employees(database_file_descriptor, database_header, &employees) == STATUS_ERROR) {
+	printf("Failed to read employees\n");
+	return STATUS_ERROR;
+    }
+
+    if (addstring) {
+	database_header->count++;
+	employees = realloc(employees, database_header->count * sizeof(struct employee_t));
+	
+	add_employee(database_header, employees, addstring);
+    }
+    
+    output_file(database_file_descriptor, database_header, employees);
 
     return 0;
 }

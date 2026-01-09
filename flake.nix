@@ -47,6 +47,7 @@
                     vcpkg
                     vcpkg-tool
                     valgrind
+                    tinyxxd
                   ]
                   ++ (if system == "aarch64-darwin" then [ ] else [ gdb ]);
               };
